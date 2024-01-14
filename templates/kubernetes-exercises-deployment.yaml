@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.appName }}-deployment
+  labels:
+    app: {{ .Values.appName }}
+spec:
+  replicas: {{ .Values.appReplicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.registrySecretName }}
+      containers:
+        - name: {{ .Values.appName }}
+          image: "{{ .Values.appImage }}:{{ .Values.appVersion }}"
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          env:
+          {{- range $key, $value := .Values.containerEnvVars }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+
+          {{- range $key, $value := .Values.containerConfigMapEnvVars }}
+            - name: {{ $key }}
+              valueFrom:
+                configMapKeyRef:
+                  # in loop, we lose global context, but can access global context with $
+                  # $ is 1 variable that is always global and will always point to the root context
+                  # so $.Value instead of .Values
+                  name: {{ $.Values.configMapName }}
+                  key: {{ $key }}
+          {{- end }}
+
+          {{- range $key, $value := .Values.containerSecretKeyEnvVars }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secretName }}
+                  key: {{ $key }}
+          {{- end }}

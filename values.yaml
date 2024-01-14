@@ -1,0 +1,29 @@
+appName: app
+
+appReplicas: 1
+
+registrySecretName: registry-secret
+
+appImage: image
+
+appVersion: version
+
+containerPort: 80
+
+containerEnvVars: {}
+
+configMapName: config
+
+containerConfigMapEnvVars: {}
+
+secretName: secret
+
+containerSecretKeyEnvVars: {}
+
+servicePort: 80
+
+ingressHostName: app.com
+
+ingressPathType: Exact
+
+ingressPath: /
